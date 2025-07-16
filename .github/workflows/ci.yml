@@ -40,7 +40,7 @@ jobs:
       with:
         project_id: ${{ secrets.GCP_PROJECT }}
     - run: |
-        gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT }}/peazy-agent:${{ github.sha }} --timeout=15m
+        gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT }}/peazy-agent:${{ github.sha }} --timeout=15m --file=Dockerfile .
     - uses: google-github-actions/deploy-cloudrun@v2
       with:
         service: peazy-agent
