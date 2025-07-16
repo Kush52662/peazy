@@ -29,8 +29,14 @@ jobs:
           fi
         done
     - run: |
+        # Debug: show current directory and structure
+        pwd
+        ls -la
+        echo "Checking for agent/server directory..."
+        ls -la agent/ || echo "agent directory not found"
+        ls -la agent/server/ || echo "agent/server directory not found"
         # Create minimal .env for smoke test
-        cd agent/server
+        cd agent/server || exit 1
         echo 'DATABASE_URL="sqlite+aiosqlite:///:memory:?cache=shared"' > .env
         echo 'WEBAPP_PORT="8080"' >> .env
         echo 'GEMINI_API_KEY="test"' >> .env
