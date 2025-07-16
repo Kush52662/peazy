@@ -1,19 +1,24 @@
 name: Peazy CI
-on: { push: { branches: [main] } }
+on:
+  push:
+    branches:
+      - main
 jobs:
   build-test-deploy:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
-      with: { python-version: "3.11" }
+      with:
+        python-version: "3.11"
     - run: |
         python -m pip install --upgrade pip
         pip install -r requirements.lock pytest ruff
         ruff .
         pytest -q || true
     - uses: actions/setup-node@v4
-      with: { node-version: "20" }
+      with:
+        node-version: "20"
     - run: |
         cd agent/client && npm ci && cd ../../
         cd dashboard && npm ci && cd ..
@@ -23,9 +28,11 @@ jobs:
         python agent/server/sesame.py run --host 0.0.0.0 --port 8080 &
         PID=$!; sleep 15; curl -f http://localhost:8080/api/health; kill $PID
     - uses: google-github-actions/auth@v2
-      with: { credentials_json: ${{ secrets.GOOGLE_SA_KEY }} }
+      with:
+        credentials_json: ${{ secrets.GOOGLE_SA_KEY }}
     - uses: google-github-actions/setup-gcloud@v2
-      with: { project_id: ${{ secrets.GCP_PROJECT }} }
+      with:
+        project_id: ${{ secrets.GCP_PROJECT }}
     - run: |
         gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT }}/peazy-agent:${{ github.sha }} --timeout=15m
     - uses: google-github-actions/deploy-cloudrun@v2
@@ -33,9 +40,7 @@ jobs:
         service: peazy-agent
         image: gcr.io/${{ secrets.GCP_PROJECT }}/peazy-agent:${{ github.sha }}
         region: us-central1
-        min-instances: 1
-        max-instances: 3
-        env-vars-file: cloudrun-env.yaml
+        flags: '--min-instances=1 --max-instances=3 --env-vars-file=cloudrun-env.yaml'
     - run: |
         cd agent/client && npm run build && cd ../../
         tar -C agent/client/dist -czf site.tar.gz .
