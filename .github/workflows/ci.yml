@@ -35,7 +35,7 @@ jobs:
         echo "TODO: Add agent/server files to git tracking"
     - uses: google-github-actions/auth@v2
       with:
-        credentials_json: ${{ secrets.GOOGLE_SA_KEY }}
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
     - uses: google-github-actions/setup-gcloud@v2
       with:
         project_id: ${{ secrets.GCP_PROJECT }}
