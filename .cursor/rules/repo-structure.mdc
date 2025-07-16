@@ -1,0 +1,30 @@
+## Directory layout
+
+* `/apps/extension` – Chrome MV3 code
+* `/apps/dashboard` – Next.js dashboard (voice-ui-kit + flows)
+* `/apps/agent`     – Python Pipecat agent
+* `/infra/`         – Terraform & Kubernetes manifests
+* `/scripts/`       – Dev helpers
+* `/docs/`          – ADRs & diagrams
+
+## Branch naming
+
+```
+feat/<ticket>-<slug>   fix/<ticket>-<slug>  
+chore/<ticket>-<slug>  hotfix/<slug>
+```
+
+## Commit messages (Conventional Commits)
+
+```
+type(scope)!: short description
+```
+
+Examples:
+`feat(agent): add pointer overlay processor`
+`fix(extension): correct pointer jitter on 4K screens`
+---
+description: Monorepo layout & naming conventions for Peazy
+globs:
+alwaysApply: true
+---

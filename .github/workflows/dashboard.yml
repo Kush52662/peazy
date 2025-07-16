@@ -1,0 +1,43 @@
+name: Dashboard CI
+
+on:
+  push:
+    paths:
+      - 'apps/dashboard/**'
+      - 'scripts/build-dashboard.sh'
+      - 'scripts/deploy-dashboard.sh'
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Google Auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy dashboard via Cloud Run buildpack
+        run: |
+          gcloud run deploy peazy-dashboard-dev \
+            --source ./apps/dashboard \
+            --region us-central1 \
+            --allow-unauthenticated \
+            --set-env-vars NEXT_PUBLIC_AGENT_URL=${{ secrets.NEXT_PUBLIC_AGENT_URL || 'https://peazy-agent-dev-1234567890.us-central1.run.app' }}
+
+      - name: Health Check
+        run: |
+          echo "Waiting for deployment to stabilize..."
+          sleep 30
+          curl -f https://peazy-dashboard-dev-${{ secrets.GCP_PROJECT_NUMBER }}.us-central1.run.app/ || echo "Health check failed" 

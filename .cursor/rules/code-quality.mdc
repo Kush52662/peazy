@@ -1,0 +1,23 @@
+### Lint & format tools
+| Stack | Tool | Rule |
+|-------|------|------|
+| Python | ruff + black | zero lint errors |
+| TS/JS  | eslint + prettier | zero lint errors |
+
+### Testing targets
+- **Unit coverage ≥ 80 %** (pytest / vitest).  
+- Integration tests via `docker compose`.  
+- End-to-end via Playwright against local stack.
+
+### GitHub Actions workflow
+1. **lint-test** → every push.  
+2. **build-image** → builds multi-stage Docker images ≤ 250 MB, non-root user.  
+3. **deploy-dev** → auto-deploys to *peazy-dev* Cloud Run.  
+4. **deploy-prod** → requires one human review + "prod-ready" label.
+
+_If a PR fails any gate, do not merge – fix or annotate the failure first._
+---
+description: Lint, format, and test gates enforced by CI
+globs:
+alwaysApply: true
+---

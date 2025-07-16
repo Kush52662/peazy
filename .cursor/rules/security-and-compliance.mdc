@@ -1,0 +1,24 @@
+### Secrets management
+- **Never** commit API keys or `.env` files.  
+- Use GCP Secret Manager with Workload Identity; mount as env vars in Cloud Run & GKE.
+
+### Chrome extension
+- Only request `"activeTab"`, `"scripting"`, `"storage"` permissions.  
+- Enforce strict CSP: `script-src 'self' 'wasm-unsafe-eval'; object-src 'self';`.
+
+### Dependency hygiene
+- Dependabot daily.  
+- `npm audit --production` and `pip-audit` run in CI; block on *High* severity.
+
+### Licensing
+- Preserve upstream headers (MIT/BSD).  
+- Add/maintain `NOTICE` file when required.
+
+### Incident readiness
+- Capture Cloud Audit Logs for every PROD deploy.  
+- Document rollback procedure in `/docs/adr-rollback-strategy.md`.
+---
+description: Default security, secrets, and compliance mandates
+globs:
+alwaysApply: true
+---

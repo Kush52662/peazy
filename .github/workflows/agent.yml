@@ -1,0 +1,59 @@
+name: Agent CI
+
+on:
+  push:
+    paths:
+      - 'apps/agent/**'
+      - 'scripts/build-agent.sh'
+      - 'scripts/deploy-agent.sh'
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Google Auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Auth Docker to GAR
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+
+      - name: Build & Push Agent
+        run: |
+          if [ -f "./scripts/build-agent.sh" ]; then
+            chmod +x ./scripts/build-agent.sh
+            ./scripts/build-agent.sh ${{ github.sha }}
+          else
+            echo "Building agent image..."
+            docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/peazy-agent:${{ github.sha }} apps/agent/
+            docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/peazy-agent:${{ github.sha }}
+          fi
+
+      - name: Deploy to Cloud Run
+        run: |
+          if [ -f "./scripts/deploy-agent.sh" ]; then
+            chmod +x ./scripts/deploy-agent.sh
+            ./scripts/deploy-agent.sh ${{ github.sha }}
+          else
+            echo "Deploying agent to Cloud Run..."
+            gcloud run deploy peazy-agent-dev \
+              --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/peazy-agent:${{ github.sha }} \
+              --platform managed \
+              --region us-central1 \
+              --allow-unauthenticated \
+              --port 8080
+          fi
+
+      - name: Health Check
+        run: |
+          echo "Waiting for deployment to stabilize..."
+          sleep 30
+          curl -f https://peazy-agent-dev-${{ secrets.GCP_PROJECT_NUMBER }}.us-central1.run.app/healthz || echo "Health check failed" 
