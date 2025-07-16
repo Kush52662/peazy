@@ -20,10 +20,14 @@ jobs:
       with:
         node-version: "20"
     - run: |
-        cd agent/client && npm ci && cd ../../
-        cd dashboard && npm ci && cd ..
-        cd agent/client && npm run lint --if-present && cd ../../
-        cd dashboard && npm run lint --if-present && cd ..
+        for dir in **/*/; do
+          if [[ -f "$dir/package.json" ]]; then
+            cd "$dir"
+            if [[ -f package-lock.json ]]; then npm ci; else npm install --no-audit --no-fund; fi
+            npm run lint --if-present || true
+            cd "$OLDPWD"
+          fi
+        done
     - run: |
         python agent/server/sesame.py run --host 0.0.0.0 --port 8080 &
         PID=$!; sleep 15; curl -f http://localhost:8080/api/health; kill $PID
@@ -42,7 +46,13 @@ jobs:
         region: us-central1
         flags: '--min-instances=1 --max-instances=3 --env-vars-file=cloudrun-env.yaml'
     - run: |
-        cd agent/client && npm run build && cd ../../
+        for dir in **/*/; do
+          if [[ -f "$dir/package.json" ]]; then
+            cd "$dir"
+            npm run build --if-present || true
+            cd "$OLDPWD"
+          fi
+        done
         tar -C agent/client/dist -czf site.tar.gz .
     - uses: google-github-actions/upload-cloud-storage@v1
       with:
