@@ -38,14 +38,19 @@ jobs:
         credentials_json: ${{ secrets.GCP_SA_KEY }}
     - uses: google-github-actions/setup-gcloud@v2
       with:
-        project_id: ${{ secrets.GCP_PROJECT }}
-    - run: |
-        gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT }}/peazy-agent:${{ github.sha }} --timeout=15m --file=Dockerfile .
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+    - name: Build & push image
+      run: |
+        gcloud builds submit \
+          --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/peazy-agent:${{ github.sha }} \
+          --timeout=15m \
+          .
     - uses: google-github-actions/deploy-cloudrun@v2
       with:
         service: peazy-agent
-        image: gcr.io/${{ secrets.GCP_PROJECT }}/peazy-agent:${{ github.sha }}
+        image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/peazy-agent:${{ github.sha }}
         region: us-central1
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
         flags: '--min-instances=1 --max-instances=3 --env-vars-file=cloudrun-env.yaml'
     - run: |
         for dir in **/*/; do
