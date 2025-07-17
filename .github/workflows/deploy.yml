@@ -118,7 +118,8 @@ jobs:
       - name: Build frontend
         run: |
           cd gemini-multimodal-live-demo-main/client
-          npm ci
+          rm -rf node_modules package-lock.json
+          npm install
           npm run build
 
       - name: Upload to GCS
