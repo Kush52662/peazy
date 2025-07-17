@@ -20,11 +20,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Expose port (Cloud Run will override this)
-EXPOSE 8080
+# Expose port 7860
+EXPOSE 7860
 
 # Set environment variables
 ENV PYTHONPATH=/app
+ENV PORT=7860
 
-# Run the application using PORT environment variable from Cloud Run
-CMD ["python", "sesame.py", "run", "--host", "0.0.0.0", "--port", "$PORT", "--no-reload"] 
+# Run the application on port 7860
+CMD ["python", "sesame.py", "run", "--host", "0.0.0.0", "--port", "7860", "--no-reload"] 
