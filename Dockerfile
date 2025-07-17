@@ -11,10 +11,10 @@ RUN pip install --no-cache-dir -r requirements.lock
 
 # --- copy source ---
 WORKDIR /app
-COPY . .
-# ─── DEBUG: locate sesame.py ───
-RUN echo "🔍 Scanning for sesame.py …" && find /app -name 'sesame.py' -print
+COPY agent/server ./agent/server
+# Debug: list path to confirm we copied the file
+RUN echo "🔍 sesame.py location:" && find /app -name sesame.py
 
 # === Runtime section ===
 WORKDIR /app/agent/server
-CMD ["python", "sesame.py", "run", "--host", "0.0.0.0", "--port", "8080"] 
+CMD ["python","sesame.py","run","--host","0.0.0.0","--port","8080"] 
