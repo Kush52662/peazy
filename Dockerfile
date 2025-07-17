@@ -4,13 +4,17 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     POETRY_VIRTUALENVS_CREATE=false
 
+# ─── Build context ───────────────────────────────
 WORKDIR /app
-# install universal deps
+
+# Python deps
 COPY requirements.lock .
 RUN pip install --no-cache-dir -r requirements.lock
 
-# ⬇️ copy actual backend code
-COPY agent/server ./agent/server
+# Application code
+#   repo path:   agent/server/…
+#   image path:  /app/server/…
+COPY agent/server/ ./server/
 
 # launch FastAPI app
 CMD ["python", "agent/server/sesame.py", "run", "--host", "0.0.0.0", "--port", "8080"] 
