@@ -45,6 +45,15 @@ jobs:
           --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/peazy-agent:${{ github.sha }} \
           --timeout=15m \
           .
+    - name: Create Cloud Run env file
+      run: |
+        cat > cloudrun-env.yaml <<EOF
+        WEBAPP_PORT: "8080"
+        DAILY_API_KEY: "${{ secrets.DAILY_API_KEY }}"
+        DAILY_DOMAIN_NAME: "${{ secrets.DAILY_DOMAIN_NAME }}"
+        GOOGLE_API_KEY: "${{ secrets.GOOGLE_API_KEY }}"
+        PIPECAT_CLOUD_API: "${{ secrets.PIPECAT_CLOUD_API }}"
+        EOF
     - uses: google-github-actions/deploy-cloudrun@v2
       with:
         service: peazy-agent
