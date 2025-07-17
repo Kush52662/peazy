@@ -21,11 +21,16 @@ jobs:
             echo "::error::Missing required secret: GCP_SA_KEY, GCP_PROJECT_ID, GEMINI_API_KEY, or DAILY_API_KEY" && exit 1
           fi
 
+      - name: Google Auth
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
 
       - name: Configure gcloud
         run: |
@@ -60,11 +65,16 @@ jobs:
             echo "::error::Missing required secret: GCP_SA_KEY or GCP_PROJECT_ID" && exit 1
           fi
 
+      - name: Google Auth
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
 
       - name: Install Node.js
         uses: actions/setup-node@v4
