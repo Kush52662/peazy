@@ -39,6 +39,9 @@ jobs:
     - uses: google-github-actions/setup-gcloud@v2
       with:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
+    - name: Authorise Docker to pull from GCR
+      run: |
+        gcloud auth configure-docker --quiet
     - name: Build & push image
       run: |
         gcloud builds submit \
