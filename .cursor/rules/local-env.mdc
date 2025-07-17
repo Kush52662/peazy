@@ -1,0 +1,51 @@
+alwaysApply: true
+description: >
+  Local-environment guardrails. Prevent the AI from editing application logic
+  to “fix” missing packages; instead, install them in the venv or Node modules.
+  Never commit secrets. Ensure .env exists before running the app.
+
+# This rule fires for any chat request that mentions:
+#   • env files   • missing module errors   • dependency upgrades
+globs: ["**/*"]
+
+rules:
+  - when: "BEFORE_SAVE"
+    if: >
+      filePath matches /^\.env/ || filePath matches /^.*\.env\./
+    then: |
+      ✋ **STOP.** Secrets must never be saved to the repo.
+      Abandon the save operation. Remind the user to keep secrets local.
+      (Example shown below ⤵)
+      Example:
+        "The .env file contains API keys. It has been excluded via .gitignore."
+
+  - when: "INSTALL_DEPS"
+    then: |
+      1. Ensure Python 3.10+ is active via `pyenv local 3.10`.
+      2. If no venv: `python -m venv .venv && source .venv/bin/activate`.
+      3. Run `pip install -r gemini-multimodal-live-demo/requirements.txt`.
+      4. From `gemini-multimodal-live-demo/`, run `npm install` (Node ≥ 20).
+
+  - when: "RUN_APP"
+    then: |
+      Pre-check:
+        • Confirm `.env` exists; if absent, guide user to create it from `.env.example`.
+        • Load env vars with `dotenv` before execution.
+      Start commands:
+        • `python src/main.py --port=$WEBAPP_PORT`
+        • (if frontend present later) `npm run dev`
+
+examples:
+  - |
+    ### Bad
+    ```bash
+    pip install XXX  # then commit Pipfile.lock with stale hashes
+    ```
+  - |
+    ### Good
+    Use the INSTALL_DEPS workflow phase so Cursor sets up the venv
+    **without** touching tracked files.
+description:
+globs:
+alwaysApply: false
+---

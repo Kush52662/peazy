@@ -1,11 +1,6 @@
-# === Dev / editor artifacts ===
+# Local secrets and environments
+peazy_secrets.txt
 .venv/
 node_modules/
-*.log
-
-# === Build output ===
-dist/
-build/
-*.tar.gz
 .env
-
+.env.* 
