@@ -8,7 +8,7 @@ from typing import Callable, Dict, Literal
 
 import typer
 from common.database import default_session_factory
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm, Prompt
@@ -37,11 +37,8 @@ def check_required_env_vars() -> bool:
     # Variables that must exist but can be empty
     required_vars_allow_empty = []
 
-    if not env_file.exists():
-        console.print("\n✗ No .env file found. Please run 'sesame init' first.", style="red bold")
-        return False
-
-    load_dotenv(env_file)
+    # Load .env file if it exists, but don't fail if it doesn't
+    load_dotenv(find_dotenv(), override=False)
 
     # Check vars that must have values
     missing_vars = [var for var in required_vars if not os.getenv(var)]
@@ -317,17 +314,18 @@ def test_db(show_success_banner: bool = True):
 
 
 @app.command()
-@require_env
 def run(
     host: str = typer.Option(None, "--host", "-h", help="Bind socket to this host."),
     port: int = typer.Option(None, "--port", "-p", help="Bind socket to this port."),
     reload: bool = typer.Option(True, "--reload/--no-reload", help="Enable auto-reload."),
 ):
     """Run the FastAPI server using uvicorn."""
-    load_dotenv(env_file)
+    # Load .env file if it exists, but don't fail if it doesn't
+    load_dotenv(find_dotenv(), override=False)
 
     try:
-        final_port = port or int(os.getenv("WEBAPP_PORT", "7860"))
+        # Use PORT environment variable (Cloud Run) or fall back to WEBAPP_PORT or default
+        final_port = port or int(os.getenv("PORT", os.getenv("WEBAPP_PORT", "7860")))
         app_path = "webapp.main:app"
 
         # Build command arguments
