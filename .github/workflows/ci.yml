@@ -45,6 +45,17 @@ jobs:
           --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/peazy-agent:${{ github.sha }} \
           --timeout=15m \
           .
+    - name: Smoke-test container locally
+      run: |
+        docker run -d -p 8080:8080 --name peazy-test gcr.io/${{ secrets.GCP_PROJECT_ID }}/peazy-agent:${{ github.sha }}
+        # give uvicorn a few seconds
+        for i in {1..15}; do
+          sleep 4
+          if curl -fs http://localhost:8080/api/health; then
+            echo "Container healthy ✅"; docker rm -f peazy-test; exit 0
+          fi
+        done
+        echo "Container failed to start ❌"; docker logs peazy-test; docker rm -f peazy-test; exit 1
     - name: Create Cloud Run env file
       run: |
         cat > cloudrun-env.yaml <<EOF
