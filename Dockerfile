@@ -1,18 +1,18 @@
-# ───────── Peazy backend container ─────────
+# ./Dockerfile
 FROM python:3.11-slim
 
-# Prevent Python stdout buffering
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    POETRY_VIRTUALENVS_CREATE=false
 
-# Set workdir
-WORKDIR /app
-
-# Install Python deps
+# --- install deps ---
 COPY requirements.lock .
 RUN pip install --no-cache-dir -r requirements.lock
 
-# Copy entire repo (agent, flows, dashboard assets if needed)
+# --- copy source ---
+WORKDIR /app
 COPY . .
 
-# Default command: run the FastAPI server
-CMD ["python","agent/server/sesame.py","run","--host","0.0.0.0","--port","${PORT:-8080}"] 
+# --- run backend ---
+WORKDIR /app/agent/server
+CMD ["python", "sesame.py", "run", "--host", "0.0.0.0", "--port", "8080"] 
