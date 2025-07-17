@@ -39,7 +39,7 @@ jobs:
 
       - name: Build backend container
         run: |
-          gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/peazy-agent:${{ github.sha }} gemini-multimodal-live-demo/server/
+          gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/peazy-agent:${{ github.sha }} gemini-multimodal-live-demo-main/server/
 
       - name: Deploy to Cloud Run
         run: |
@@ -83,7 +83,7 @@ jobs:
 
       - name: Build frontend
         run: |
-          cd gemini-multimodal-live-demo/client
+          cd gemini-multimodal-live-demo-main/client
           npm ci
           npm run build
 
@@ -91,7 +91,7 @@ jobs:
         run: |
           BUCKET=${{ secrets.GCP_PROJECT_ID }}-web
           gsutil mb -l us-central1 -p ${{ secrets.GCP_PROJECT_ID }} gs://$BUCKET || true
-          gsutil -m rsync -r -c gemini-multimodal-live-demo/client/dist gs://$BUCKET
+          gsutil -m rsync -r -c gemini-multimodal-live-demo-main/client/dist gs://$BUCKET
           gsutil -m setmeta -h "Cache-Control:public,max-age=3600" gs://$BUCKET/**
 
       - name: Output URLs
