@@ -13,8 +13,7 @@ RUN pip install --no-cache-dir -r requirements.lock
 WORKDIR /app
 COPY . .
 # ─── DEBUG: locate sesame.py ───
-RUN echo "🔍 searching for sesame.py ..." && \
-    find /app -maxdepth 4 -name "sesame.py" -print
+RUN echo "🔍 Scanning for sesame.py …" && find /app -name 'sesame.py' -print
 
 # === Runtime section ===
 WORKDIR /app/agent/server
