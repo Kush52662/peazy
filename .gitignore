@@ -1,0 +1,11 @@
+# === Dev / editor artifacts ===
+.venv/
+node_modules/
+*.log
+
+# === Build output ===
+dist/
+build/
+*.tar.gz
+.env
+
