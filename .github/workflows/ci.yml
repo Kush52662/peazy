@@ -76,14 +76,11 @@ jobs:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         flags: '--min-instances=1 --max-instances=3 --env-vars-file=cloudrun-env.yaml'
     - run: |
-        for dir in **/*/; do
-          if [[ -f "$dir/package.json" ]]; then
-            cd "$dir"
-            npm run build --if-present || true
-            cd "$OLDPWD"
-          fi
-        done
-        tar -C agent/client/dist -czf site.tar.gz .
+        cd client && npm ci && cd ..
+        cd dashboard && npm ci && cd ..
+    - run: |
+        cd client && npm run build && cd ..
+        tar -C client/dist -czf site.tar.gz .
     - uses: google-github-actions/upload-cloud-storage@v1
       with:
         path: site.tar.gz
