@@ -81,7 +81,8 @@ jobs:
             --port 7860 \
             --min-instances 1 \
             --max-instances 3 \
-            --set-env-vars "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},DAILY_API_KEY=${{ secrets.DAILY_API_KEY }},DAILY_DOMAIN_NAME=${{ secrets.DAILY_DOMAIN_NAME }},PIPECAT_CLOUD_API=${{ secrets.PIPECAT_CLOUD_API }}" \
+            --set-secrets "GEMINI_API_KEY=projects/${{ secrets.GCP_PROJECT_ID }}/secrets/GEMINI_API_KEY:latest,DAILY_API_KEY=projects/${{ secrets.GCP_PROJECT_ID }}/secrets/DAILY_API_KEY:latest" \
+            --set-env-vars "DAILY_DOMAIN_NAME=${{ secrets.DAILY_DOMAIN_NAME }},PIPECAT_CLOUD_API=${{ secrets.PIPECAT_CLOUD_API }}" \
             --execution-environment gen2 \
             --timeout 900s
 
@@ -128,6 +129,7 @@ jobs:
           gsutil mb -l us-central1 -p ${{ secrets.GCP_PROJECT_ID }} gs://$BUCKET || true
           gsutil -m rsync -r -c gemini-multimodal-live-demo-main/client/dist gs://$BUCKET
           gsutil -m setmeta -h "Cache-Control:public,max-age=3600" gs://$BUCKET/**
+          gsutil iam ch allUsers:objectViewer gs://$BUCKET
 
       - name: Output URLs
         run: |
