@@ -81,8 +81,7 @@ jobs:
             --port 7860 \
             --min-instances 1 \
             --max-instances 3 \
-            --set-secrets "GEMINI_API_KEY=projects/${{ secrets.GCP_PROJECT_ID }}/secrets/GEMINI_API_KEY:latest,DAILY_API_KEY=projects/${{ secrets.GCP_PROJECT_ID }}/secrets/DAILY_API_KEY:latest" \
-            --set-env-vars "DAILY_DOMAIN_NAME=${{ secrets.DAILY_DOMAIN_NAME }},PIPECAT_CLOUD_API=${{ secrets.PIPECAT_CLOUD_API }}" \
+            --set-env-vars "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},DAILY_API_KEY=${{ secrets.DAILY_API_KEY }},DAILY_DOMAIN_NAME=${{ secrets.DAILY_DOMAIN_NAME }},PIPECAT_CLOUD_API=${{ secrets.PIPECAT_CLOUD_API }}" \
             --execution-environment gen2 \
             --timeout 900s
 
